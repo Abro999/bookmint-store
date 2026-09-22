@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   if (Date.now() > record.expiresAt) return res.status(410).send("This download link has expired.");
   if (record.usesCount >= record.maxUses) return res.status(429).send("This download link has been used too many times.");
 
-  const fileName = process.env.PRODUCT_FILE_NAME || "";
+  const fileName = record.fileName || "";
   const filePath = path.join(__dirname, "..", "..", "private-files", fileName);
 
   if (!fs.existsSync(filePath)) return res.status(500).send("File not found on server. Contact support.");
