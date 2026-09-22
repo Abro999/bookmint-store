@@ -9,16 +9,16 @@ import React, { useEffect, useRef, useState } from "react";
    palette stretched over everything.
    ============================================================ */
 const C = {
-  ink: "#17140F",      // warm bookcloth charcoal, not the generic blue-black
-  ink2: "#1E1A14",
-  ink3: "#28221A",
-  brass: "#C9A15A",    // store accent: antique brass/gold — quiet and premium, not a neon tell
-  brassDeep: "#A67F3D",
-  white: "#F4EFE6",    // warm parchment-white, not stark/blue-white
-  muted: "#B7AC98",
-  mutedFaint: "#8A7F6C",
-  border: "rgba(201,161,90,0.22)",
-  borderSoft: "rgba(244,239,230,0.08)",
+  ink: "#151412",      // matches the near-black in your real cover art
+  ink2: "#1C1A17",
+  ink3: "#262320",
+  brass: "#C7C2B8",    // quiet pewter/silver — neutral shell, doesn't compete with any book's own cover colors
+  brassDeep: "#A19C90",
+  white: "#F2F0EA",
+  muted: "#ADA89C",
+  mutedFaint: "#7C776C",
+  border: "rgba(199,194,184,0.18)",
+  borderSoft: "rgba(242,240,234,0.08)",
 };
 
 // Two clearly distinct type families: a serif with real character for
@@ -63,7 +63,8 @@ const catalog = [
     format: "EPUB / PDF",
     language: "English",
     pages: 12,
-    accent: "#3E6B5C",
+    accent: "#E8871E",
+    coverImage: "/covers/no-code-ai-automation.png",
     purchaseProvider: "custom_checkout",
     content: {
       chapters: [
@@ -488,6 +489,24 @@ function PolicyLink({ policyKey, children }) {
 function CoverMockup({ book, size = 1 }) {
   const accent = book.accent;
   const spine = 12 * size;
+
+  // If this book has its own real cover artwork, show that —
+  // the typographic layout below is only a fallback for books
+  // added later that don't have one yet.
+  if (book.coverImage) {
+    return (
+      <div style={{ width: 300 * size, height: 460 * size, transform: "perspective(1400px) rotateY(-8deg) rotateX(1.5deg)", transformStyle: "preserve-3d" }} className="relative">
+        <img
+          src={book.coverImage}
+          alt={`${book.title} cover`}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ border: `1px solid ${C.border}`, boxShadow: "26px 42px 76px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.35)" }}
+        />
+        <div className="absolute top-1.5" style={{ right: -8 * size, bottom: -8 * size, width: 8 * size, background: "#DCD5C4", transform: "skewY(20deg)" }} />
+      </div>
+    );
+  }
+
   return (
     <div style={{ width: 300 * size, height: 460 * size, transform: "perspective(1400px) rotateY(-8deg) rotateX(1.5deg)", transformStyle: "preserve-3d" }} className="relative">
       <div className="absolute inset-0 overflow-hidden flex flex-col justify-between"
