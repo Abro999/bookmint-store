@@ -12,12 +12,12 @@ const C = {
   ink: "#151412",      // matches the near-black in your real cover art
   ink2: "#1C1A17",
   ink3: "#262320",
-  brass: "#C7C2B8",    // quiet pewter/silver — neutral shell, doesn't compete with any book's own cover colors
-  brassDeep: "#A19C90",
+  brass: "#F2F0EA",    // pure off-white — the shell itself carries no hue at all, so it can never clash with any future book's own cover colors
+  brassDeep: "#D9D6CC",
   white: "#F2F0EA",
   muted: "#ADA89C",
   mutedFaint: "#7C776C",
-  border: "rgba(199,194,184,0.18)",
+  border: "rgba(242,240,234,0.20)",
   borderSoft: "rgba(242,240,234,0.08)",
 };
 
