@@ -1,10 +1,14 @@
 import Razorpay from "razorpay";
+import { getCatalogEntry } from "../lib/catalog.js";
+import { saveOrder } from "../lib/db.js";
 
 /* ------------------------------------------------------------
    Create a Razorpay order.
    Frontend calls this first, before opening the Razorpay popup.
-   Amount is decided HERE on the server, never trusted from the
-   browser — otherwise anyone could tamper with the price paid.
+   The price is looked up HERE, server-side, from lib/catalog.js —
+   never trusted from the browser, so nobody can tamper with what
+   they pay by editing the request. Works for any number of books:
+   the browser only ever sends WHICH book (productId), never a price.
 
    RAZORPAY_KEY_SECRET is only ever read here, server-side. It is
    never sent to the browser and never referenced anywhere in src/,
@@ -19,23 +23,35 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { email, productId } = req.body || {};
+
+    const product = getCatalogEntry(productId);
+    if (!product) {
+      return res.status(400).json({ error: "Unknown product" });
+    }
+
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
 
-    const { email } = req.body || {};
-
-    // Amount is always in the SMALLEST unit of the currency —
-    // cents for USD, paise for INR (e.g. $19.00 -> 1900).
-    const PRICE_MINOR_UNITS = Number(process.env.PRODUCT_PRICE_MINOR_UNITS || 1900);
-    const CURRENCY = process.env.PRODUCT_CURRENCY || "USD";
-
     const order = await razorpay.orders.create({
-      amount: PRICE_MINOR_UNITS,
-      currency: CURRENCY,
+      amount: product.priceMinorUnits,
+      currency: product.currency,
       receipt: `receipt_${Date.now()}`,
-      notes: { email: email || "" },
+      notes: { email: email || "", productId },
+    });
+
+    // Remember, server-side, exactly which book and price this
+    // order was for. api/verify.js trusts THIS record later —
+    // never whatever the browser might claim at that point.
+    await saveOrder({
+      razorpayOrderId: order.id,
+      productId,
+      email: email || "",
+      amount: order.amount,
+      currency: order.currency,
+      paidAt: null,
     });
 
     res.status(200).json({
