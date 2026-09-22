@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/download/[token].js": {
+      "includeFiles": "private-files/**"
+    }
+  }
+}
